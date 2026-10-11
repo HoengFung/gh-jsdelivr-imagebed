@@ -2,9 +2,12 @@
 node_modules/
 
 # 环境变量（含真实密钥，绝不提交）
-.env
-.env.local
-.env.*.local
+# 注意：必须用 .env* 而非 .env / .env.local / .env.*.local 三条并列，
+# 后者匹配不到 .env.production / .env.staging 这类命名，会导致密钥被误提交。
+# 白名单只放行 .example 后缀的模板——即使填了真实值，只要不是 .example 结尾就进不了库。
+.env*
+!.env.example
+!.env.*.example
 
 # 日志
 logs/

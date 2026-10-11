@@ -1,0 +1,31 @@
+# 依赖
+node_modules/
+
+# 环境变量（含真实密钥，绝不提交）
+.env
+.env.local
+.env.*.local
+
+# 日志
+logs/
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# 本地存储驱动的文件
+storage/local/*
+!storage/local/.gitkeep
+
+# 编辑器与系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# 临时文件
+tmp/
+*.tmp
+*.bak
+
+# WorkBuddy 本地数据（记忆、会话），与项目代码无关
+.workbuddy/

@@ -1,0 +1,53 @@
+services:
+  imagebed:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gh-jsdelivr-imagebed:1.0.0
+    container_name: imagebed
+    restart: unless-stopped
+
+    # 只暴露到宿主机，由宿主机 Nginx 做域名与 TLS，业务容器不直接对外
+    ports:
+      - "127.0.0.1:3000:3000"
+
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      TRUST_PROXY_HOPS: 1
+      LOG_LEVEL: info
+
+      STORAGE_DRIVER: github
+
+      # 密钥从 .env 读取，不写入 compose 文件
+      GITHUB_TOKEN: ${GITHUB_TOKEN:?必填：GitHub PAT}
+      GITHUB_OWNER: ${GITHUB_OWNER:?必填：仓库所有者}
+      GITHUB_REPO: ${GITHUB_REPO:?必填：仓库名}
+      GITHUB_BRANCH: ${GITHUB_BRANCH:-main}
+      GITHUB_PATH_PREFIX: img
+
+      CDN_BASE_URL: ${CDN_BASE_URL:?必填：jsDelivr 地址}
+      CDN_MIRRORS: ${CDN_MIRRORS:-https://cdn.jsdmirror.com/gh,https://fastly.jsdelivr.net/gh}
+
+      UPLOAD_TOKENS: ${UPLOAD_TOKENS:?必填：上传 Token}
+      REQUIRE_AUTH: "true"
+
+      ACCESS_MODE: ${ACCESS_MODE:-proxy}
+      ALLOWED_REFERERS: ${ALLOWED_REFERERS:-}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
+      ALLOW_EMPTY_REFERER: ${ALLOW_EMPTY_REFERER:-true}
+
+    # 本地驱动的数据目录；使用 github 驱动时可不挂载
+    volumes:
+      - ./storage:/app/storage
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    deploy:
+      resources:
+        limits:
+          memory: 512M

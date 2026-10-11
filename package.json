@@ -1,0 +1,39 @@
+{
+  "name": "gh-jsdelivr-imagebed",
+  "version": "1.0.0",
+  "private": true,
+  "description": "基于 GitHub 仓库 + jsDelivr CDN 的自建图床服务，提供上传 API、访问鉴权与防盗链",
+  "type": "module",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=18.17.0"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node test/smoke.js && node test/auth.test.js && node test/url-sign.test.js",
+    "test:smoke": "node test/smoke.js",
+    "test:auth": "node test/auth.test.js",
+    "test:sign": "node test/url-sign.test.js",
+    "check": "node --check src/server.js",
+    "init:repo": "node scripts/init-repo.js",
+    "upload:cli": "node scripts/upload-cli.js"
+  },
+  "keywords": [
+    "image-hosting",
+    "github",
+    "jsdelivr",
+    "cdn",
+    "picgo"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "compression": "^1.7.5",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "multer": "^2.0.0"
+  }
+}

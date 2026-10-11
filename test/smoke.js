@@ -245,7 +245,32 @@ async function main() {
     const data = await res.json();
     assert(res.ok, 'GET /api/v1/config 可用');
     assert(data.security.requireAuth === false, '正确反映当前鉴权开关');
-    assert(data.storage.github.tokenConfigured === false, '未配置 Token 时报告为 false');
+
+    // 断言脱敏契约，而非环境状态。
+    // 旧写法断言 tokenConfigured === false，只在「恰好没配 token」的
+    // 环境下成立，真实生产配置下必然失败，且与实现对错无关。
+    // 正确测的是：无论是否配置 token，接口都不得返回明文。
+    const g = data.storage.github;
+    assert(
+      typeof g.tokenConfigured === 'boolean',
+      `tokenConfigured 为布尔值（实际 ${typeof g.tokenConfigured}）`
+    );
+    if (g.tokenConfigured) {
+      assert(
+        typeof g.tokenHint === 'string' && g.tokenHint.endsWith('****'),
+        `已配置 token 时返回脱敏提示（实际 ${g.tokenHint}）`
+      );
+      assert(!g.tokenHint.includes('_') || g.tokenHint.length <= 12,
+        'tokenHint 不包含完整密钥');
+      // 关键断言：脱敏值绝不能等于明文
+      const raw = process.env.GITHUB_TOKEN;
+      if (raw) {
+        assert(g.tokenHint !== raw, 'tokenHint 不等于明文token');
+        assert(g.tokenHint.length < raw.length, 'tokenHint 长度小于真实 token');
+      }
+    } else {
+      assert(g.tokenHint === null, '未配置 token 时 hint 为 null');
+    }
   }
 
   // ---------- 10. 签名 URL 机制 ----------
